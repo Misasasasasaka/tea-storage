@@ -1,0 +1,83 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum TeaCategory {
+  GREEN
+  BLACK
+  OOLONG
+  WHITE
+  DARK
+  YELLOW
+  HERBAL
+}
+
+model Tea {
+  id                 Int       @id @default(autoincrement())
+  code               String    @unique
+  nameCN             String
+  nameEN             String?
+  category           TeaCategory
+  grade              String?
+  originProvince     String?
+  originRegion       String?
+  cultivar           String?
+  pickingDate        DateTime?
+  batchNo            String?
+  moisture           Float?
+  caffeine           Float?
+  aromaNote          String?
+  flavorNote         String?
+  recommendedBrewing String?
+  shelfLifeDays      Int
+  storageTempMin     Float?
+  storageTempMax     Float?
+  packageSpec        String?
+  supplier           String?
+  purchasePrice      Decimal?  @db.Decimal(10,2)
+  retailPrice        Decimal?  @db.Decimal(10,2)
+  imageUrl           String?
+  isOrganic          Boolean   @default(false)
+  remark             String?
+  createdAt          DateTime  @default(now())
+
+  inbounds           InboundItem[]
+  outbounds          OutboundItem[]
+}
+
+model Inbound {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  createdAt DateTime  @default(now())
+  items     InboundItem[]
+}
+
+model InboundItem {
+  id        Int     @id @default(autoincrement())
+  teaId     Int
+  qty       Int
+  inboundId Int
+  Tea       Tea     @relation(fields: [teaId], references: [id])
+  Inbound   Inbound @relation(fields: [inboundId], references: [id])
+}
+
+model Outbound {
+  id        Int       @id @default(autoincrement())
+  code      String    @unique
+  createdAt DateTime  @default(now())
+  items     OutboundItem[]
+}
+
+model OutboundItem {
+  id         Int      @id @default(autoincrement())
+  teaId      Int
+  qty        Int
+  outboundId Int
+  Tea        Tea      @relation(fields: [teaId], references: [id])
+  Outbound   Outbound @relation(fields: [outboundId], references: [id])
+}
